@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+    {% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>🎮 Simulador de PNJs - Aventura Épica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <!-- Lottie Animations -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <style>
+        /* Reset y base */
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated;
+        }
+        body {
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            line-height: 1.4;
+            background-color: #0a0e14;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDYuMC1jMDAyIDc5LjE2NDQ2MCwgMjAyMC8wNS8xMi0xNjowNDoxNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjIgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjkzRDhCODlEQjUyMDExRUI4MTYyOUM4QzVCODQ4QzY5IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjkzRDhCODlFQjUyMDExRUI4MTYyOUM4QzVCODQ4QzY5Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OTNEOEIzNzFCNTIwMTFFQjgxNjI5QzhDNUI4NDhDNjkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6OTNEOEIzNzJCNTIwMTFFQjgxNjI5QzhDNUI4NDhDNjkiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5QsgKvAAAAGUlEQVR42mL8//8/AyWAiYFCMGrAqAEDaQAggAAN+QQEbP21/QAAAABJRU5ErkJggg==');
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Efectos CRT */
+        body::before {
+            content: "";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 9999;
+        }
+
+        body::after {
+            content: "";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(
+                circle at center,
+                transparent 0%,
+                rgba(0, 0, 0, 0.4) 100%
+            );
+            z-index: 10000;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            text-shadow: 3px 3px 0 #000;
+            color: #f5d742; /* Amarillo dorado de Zelda */
+        }
+
+        h1 {
+            font-size: 18px;
+            text-align: center;
+            margin: 0 0 30px 0;
+            padding: 10px;
+            background-color: #1a2b3c;
+            border: 4px solid #f5d742;
+            position: relative;
+            box-shadow: 0 4px 0 #0d1821;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.1) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0.1) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 4px 4px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        h2 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #3a4e5d;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            color: #5ab3e8; /* Azul claro de Zelda */
+        }
+
+        .descripcion, .instrucciones {
+            position: relative;
+            background-color: #1a2b3c;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #5ab3e8;
+            box-shadow: 4px 4px 0 #0d2b45;
+        }
+
+        .descripcion::before, .instrucciones::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            height: 4px;
+            background-color: rgba(90, 179, 232, 0.3);
+        }
+
+        .instrucciones {
+            border-color: #6bbf5a; /* Verde de Zelda */
+            box-shadow: 4px 4px 0 #1d4a1d;
+        }
+
+        .instrucciones::before {
+            background-color: rgba(107, 191, 90, 0.3);
+        }
+
+        form {
+            background-color: #1a2b3c;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #f5d742;
+            box-shadow: 6px 6px 0 #4d3a0d;
+            position: relative;
+        }
+
+        form::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAABSSURBVHjaYmBgYPgPxAwM//8zQAATAzJgZGT8f+3aNQYmBjTAyMj4H6SABU0BExMTAwsLCwMjI+P/e/fuMbCgK2BkZPzPCFPAyMj4X0BAgAEAAAD//wMAHHQTJxoKN+IAAAAASUVORK5CYII=');
+            background-repeat: repeat;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+            padding: 15px;
+            background-color: rgba(26, 43, 60, 0.7);
+            border: 2px solid;
+            outline: 1px solid #0d1821;
+        }
+
+        .guardia { border-color: #d94e41; } /* Rojo de Zelda */
+        .mago { border-color: #8a6de9; } /* Púrpura mágico */
+        .vendedor { border-color: #6bbf5a; } /* Verde de Zelda */
+
+        .form-group::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
+        }
+
+        .guardia::before {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAu0lEQVQYV2NkIBIwEqmOAavkwoULHZiZmRMYGRkdGBgYPKBq9jEwMExkZWVdfP/+/QXIChgXL17kwMDAsJCBgcEAqvA/AwPDYQYGhokMDAwLkRVATTZgYGCQZGBg+AiV2MfIyOixZMmSxcgKli9eLMnIyPgRqhKs4D8DA8NiBgYGA6jEfgYGhoMMDAwTGQAAAQIE/v///wMAjB4SOW8uZmkAAAAASUVORK5CYII=');
+        }
+
+        .mago::before {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAvklEQVQYV2NkIBIwEqmOAavk////HRgYGBIYGBgdoGrdoWr2MzAwTGRgYFj8////C8gKGP/9++fAwMCwkIGBwQAq+J+BgeEwAwPDRAYGhoXICqAabRgYGCQZGBg+QiX2MzIyeixbtmwxsgKomf+hTvgPldjPwsIStHz58sPICv79+2fAwsKyH6oIbOO/f/+C8vPzDyMrWLVqlSQjI+NHqMkSampqvKtXr/6DrAAAliggEKyODcIAAAAASUVORK5CYII=');
+        }
+
+        .vendedor::before {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAw0lEQVQYV2NkIBIwEqmOAavkv3//HBgZGRMYGBgcGBgY3KFq9jEwMExkYGBY/P///wvIChjXrVvnwMzMvBCq0AAq+J+JiekwAwPDRAYGhoXICv7//2/DwsIiycDA8JGRkeH/0qVLFyMrWLNmjQMQX4CGxX+oyYtZWVmDli1bdhhZwbp1aw2YmZn3QxWBbWRkZAzKzc09jKxg7dq1koyMjB+hJkuoq6vzrlq1CtkTDAwA9jomEOU/P/YAAAAASUVORK5CYII=');
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #3a4e5d;
+            background-color: #0d1821;
+            cursor: pointer;
+            position: relative;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #0d1821;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: #f5d742;
+            box-shadow: 0 0 2px 1px rgba(245, 215, 66, 0.5);
+        }
+
+        label {
+            font-size: 16px;
+            margin: 8px 0;
+            display: block;
+            cursor: pointer;
+        }
+
+        button {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            background-color: #f5d742;
+            color: #1a2b3c;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            position: relative;
+            box-shadow: 0 6px 0 #4d3a0d;
+            transition: all 0.1s;
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.1) 50%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+            pointer-events: none;
+        }
+
+        button:hover {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #4d3a0d;
+        }
+
+        button:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #4d3a0d;
+        }
+
+        .personaje {
+            position: relative;
+            background-color: #1a2b3c;
+            padding: 15px;
+            margin: 40px auto;
+            border: 2px solid;
+            box-shadow: 4px 4px 0;
+            max-width: 600px;
+            animation: fadeInPixel 0.5s steps(5) forwards;
+        }
+
+        @keyframes fadeInPixel {
+            from { opacity: 0; transform: translateY(20px); }
+            20% { opacity: 0.2; }
+            40% { opacity: 0.4; }
+            60% { opacity: 0.6; }
+            80% { opacity: 0.8; }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        li {
+            margin: 5px 0;
+            font-size: 16px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        li::before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #f5d742;
+        }
+
+        .action-box {
+            background-color: #0d1821;
+            border: 2px solid;
+            padding: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .action-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.1) 2px,
+                rgba(255, 255, 255, 0.1) 4px
+            );
+            pointer-events: none;
+        }
+
+        .historial {
+            background-color: #1a2b3c;
+            padding: 20px;
+            margin: 30px auto;
+            border: 2px solid #5ab3e8;
+            box-shadow: 4px 4px 0 #0d2b45;
+            max-width: 600px;
+        }
+
+        .historial h2 {
+            color: #5ab3e8;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .historial-entry {
+            background-color: rgba(13, 24, 33, 0.5);
+            border-left: 4px solid #5ab3e8;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .historial-entry::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-image: linear-gradient(
+                to right,
+                transparent,
+                #5ab3e8 50%,
+                transparent
+            );
+        }
+
+        /* Estilos específicos por personaje */
+        .personaje.guardia {
+            border-color: #d94e41;
+            box-shadow: 4px 4px 0 #5a1d1d;
+        }
+
+        .personaje.guardia h2 {
+            color: #d94e41;
+        }
+
+        .personaje.guardia .action-box {
+            border-color: #d94e41;
+            color: #d94e41;
+            box-shadow: inset 0 0 10px rgba(217, 78, 65, 0.3);
+        }
+
+        .personaje.mago {
+            border-color: #8a6de9;
+            box-shadow: 4px 4px 0 #3a2b6a;
+        }
+
+        .personaje.mago h2 {
+            color: #8a6de9;
+        }
+
+        .personaje.mago .action-box {
+            border-color: #8a6de9;
+            color: #8a6de9;
+            box-shadow: inset 0 0 10px rgba(138, 109, 233, 0.3);
+        }
+
+        .personaje.vendedor {
+            border-color: #6bbf5a;
+            box-shadow: 4px 4px 0 #1d4a1d;
+        }
+
+        .personaje.vendedor h2 {
+            color: #6bbf5a;
+        }
+
+        .personaje.vendedor .action-box {
+            border-color: #6bbf5a;
+            color: #6bbf5a;
+            box-shadow: inset 0 0 10px rgba(107, 191, 90, 0.3);
+        }
+
+        .blink {
+            animation: blink 1s steps(2, start) infinite;
+        }
+
+        @keyframes blink {
+            to { color: transparent; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 14px;
+            }
+
+            .form-group {
+                padding: 10px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .lottie-container {
+            width: 32px;
+            height: 32px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+            filter: brightness(1.2) contrast(1.2);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🗡️ SIMULADOR DE PNJs - AVENTURA ÉPICA</h1>
+
+    <div class="descripcion">
+        <p><strong>¿Qué es este juego?</strong></p>
+        <p>Este es un simulador de inteligencia artificial básica en videojuegos. Aquí podrás controlar las condiciones del mundo y ver cómo reaccionan tres personajes no jugables (PNJs) según sus reglas de comportamiento definidas por un <strong>Árbol de Decisión</strong>.</p>
+        <p><strong>Tu misión:</strong> Marca o desmarca las casillas de estado y haz clic en <span class="blink">Tomar Decisión</span> para ver qué harían estos personajes bajo tus condiciones.</p>
+    </div>
+
+    <div class="instrucciones">
+        <h3>🛡️ ¿Cómo funciona?</h3>
+        <ul>
+            <li><strong>Guardia:</strong> Decide si atacar, patrullar, saludar o ignorarte según tu presencia y armamento.</li>
+            <li><strong>Mago:</strong> Usa hechizos, recarga maná o espera dependiendo de su poder y amenaza.</li>
+            <li><strong>Vendedor:</strong> Ofrece mercancía o niega la venta basándose en tu dinero y disponibilidad de productos.</li>
+        </ul>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Guardia -->
+        <div class="form-group guardia">
+            <h3>🛡️ Guardia</h3>
+            <label>{{ form.salud_jugador }} Salud del Jugador</label>
+            <label>{{ form.distancia_al_jugador }} Distancia al jugador</label>
+            <label>{{ form.conoce_jugador }} ¿Te conoce?</label>
+        </div>
+
+        <!-- Mago -->
+        <div class="form-group mago">
+            <h3>🔮 Mago</h3>
+            <label>{{ form.mana_actual }} Maná actual</label>
+            <label>{{ form.enemigo_cerca }} ¿Enemigo cerca?</label>
+            <label>{{ form.objetivo_valioso }} ¿Objetivo valioso?</label>
+        </div>
+
+        <!-- Vendedor -->
+        <div class="form-group vendedor">
+            <h3>🏪 Vendedor</h3>
+            <label>{{ form.dinero_suficiente }} ¿Tiene suficiente dinero?</label>
+            <label>{{ form.producto_disponible }} ¿Producto disponible?</label>
+        </div>
+
+        <button type="submit">TOMAR DECISIÓN</button>
+    </form>
+
+    <!-- Resultados por personaje -->
+    {% if accion_guardia %}
+    <div class="personaje guardia">
+        <h2><lottie-player class="lottie-container" src="https://assets5.lottiefiles.com/packages/lf20_5qFbxc.json" background="transparent" speed="1" loop autoplay></lottie-player>🛡️ Guardia</h2>
+        <p><strong>Estado:</strong></p>
+        <ul>
+            {% for clave, valor in estado_guardia.items %}
+                <li>{{ clave|capfirst }}: {{ valor|yesno:"Sí,No" }}</li>
+            {% endfor %}
+        </ul>
+        <div class="action-box">{{ accion_guardia }}</div>
+    </div>
+    {% endif %}
+
+    {% if accion_mago %}
+    <div class="personaje mago">
+        <h2><lottie-player class="lottie-container" src="https://assets2.lottiefiles.com/packages/lf20_04fsbocd.json" background="transparent" speed="1" loop autoplay></lottie-player>🔮 Mago</h2>
+        <p><strong>Estado:</strong></p>
+        <ul>
+            {% for clave, valor in estado_mago.items %}
+                <li>{{ clave|capfirst }}: {{ valor|yesno:"Sí,No" }}</li>
+            {% endfor %}
+        </ul>
+        <div class="action-box">{{ accion_mago }}</div>
+    </div>
+    {% endif %}
+
+    {% if accion_vendedor %}
+    <div class="personaje vendedor">
+        <h2><lottie-player class="lottie-container" src="https://assets3.lottiefiles.com/packages/lf20_tootadux.json" background="transparent" speed="1" loop autoplay></lottie-player>🏪 Vendedor</h2>
+        <p><strong>Estado:</strong></p>
+        <ul>
+            {% for clave, valor in estado_vendedor.items %}
+                <li>{{ clave|capfirst }}: {{ valor|yesno:"Sí,No" }}</li>
+            {% endfor %}
+        </ul>
+        <div class="action-box">{{ accion_vendedor }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Historial -->
+    <div class="historial">
+        <h2>📜 HISTORIAL DE DECISIONES</h2>
+        {% for entrada in historial %}
+            <div class="historial-entry">
+                <strong>{{ entrada.personaje }}</strong> - "{{ entrada.accion }}"<br>
+                <small>{{ entrada.fecha|date:"Y-m-d H:i:s" }}</small>
+            </div>
+        {% empty %}
+            <p>No hay decisiones aún.<span class="blink"> ¡Inicia tu aventura!</span></p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Sonido -->
+<audio id="decision-sound" src="{% static 'sounds/decision.mp3' %}" preload="auto"></audio>
+
+<script>
+    // Efecto CRT (scanlines fluctuantes)
+    function updateScanlines() {
+        document.body.style.setProperty('--scan-offset', Math.random() * 5 + 'px');
+        setTimeout(updateScanlines, 50 + Math.random() * 100);
+    }
+
+    updateScanlines();
+
+    // Efecto de parpadeo aleatorio
+    function blinkEffect() {
+        const pixels = document.createElement('div');
+        pixels.style.position = 'fixed';
+        pixels.style.width = '4px';
+        pixels.style.height = '4px';
+        pixels.style.background = '#fff';
+        pixels.style.top = Math.random() * window.innerHeight + 'px';
+        pixels.style.left = Math.random() * window.innerWidth + 'px';
+        pixels.style.opacity = '0.8';
+        pixels.style.zIndex = '10001';
+        pixels.style.pointerEvents = 'none';
+        document.body.appendChild(pixels);
+
+        setTimeout(() => {
+            document.body.removeChild(pixels);
+        }, 100 + Math.random() * 200);
+
+        setTimeout(blinkEffect, 2000 + Math.random() * 5000);
+    }
+
+    blinkEffect();
+
+    // Sonido al enviar formulario
+    document.querySelector("form").addEventListener("submit", function () {
+        const sound = document.getElementById("decision-sound");
+        if (sound) sound.play();
+    });
+</script>
+
+</body>
+</html>
